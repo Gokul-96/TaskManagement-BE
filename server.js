@@ -1,4 +1,5 @@
 //Refer diary
+const path = require('path');
 const config = require('./utils/config');
 //use mongoose
 const mongoose = require ('mongoose');
