@@ -1,39 +1,39 @@
 const jwt = require('jsonwebtoken');
+const config =require('../utils/config');
 
 const verifyToken = (req, res, next) => {
-  console.log('Request Headers:', req.headers); 
   const authHeader = req.get('Authorization');
-  console.log('Auth Header:', authHeader);
-  
+
   if (!authHeader) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
   let token;
-  
-  // Check if the token is provided with the Bearer prefix
+
   if (authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
+    token = authHeader.slice(7);
   } else {
-    // If not, assume the token is directly provided
     token = authHeader;
   }
 
-  let decodedToken;
   try {
-    decodedToken = jwt.verify(token, 'SECRET_KEY');
+    const decodedToken = jwt.verify(token, config.SECRET_KEY);
+    req.userId = decodedToken.userId;
+    next();
   } catch (error) {
+    console.error('Token Verification Error:', error.message);
+    console.error('Provided Token:', token);
     return res.status(401).json({ message: 'Invalid token' });
   }
-
-  if (!decodedToken) {
-    return res.status(401).json({ message: 'Not authenticated' });
+};
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Permission denied' });
   }
-
-  req.userId = decodedToken.userId;
-  next();
 };
 
 module.exports = {
-  verifyToken: verifyToken,
+  verifyToken: verifyToken, isAdmin 
 };

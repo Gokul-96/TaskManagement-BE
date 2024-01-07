@@ -42,14 +42,19 @@ const taskController = {
 
   updateTask: async (req, res, next) => {
     const { taskId } = req.params;
+    const { title, completed } = req.body;
 
     try {
       const task = await Task.findById(taskId);
+
       if (!task || task.user.toString() !== req.userId) {
         return res.status(404).json({ message: 'Task not found' });
       }
 
-      task.completed = !task.completed;
+      // Update task properties
+      task.title = title || task.title;
+      task.completed = completed !== undefined ? completed : task.completed;
+
       await task.save();
 
       res.json(task);
@@ -60,20 +65,36 @@ const taskController = {
 
   deleteTask: async (req, res, next) => {
     const { taskId } = req.params;
-
+  
     try {
+      console.log('Deleting task:', taskId);
       const task = await Task.findById(taskId);
+  
       if (!task || task.user.toString() !== req.userId) {
         return res.status(404).json({ message: 'Task not found' });
       }
-
-      await task.remove();
-
+  
+      await Task.deleteOne({ _id: taskId }); // Use deleteOne instead of remove
+  
       res.json({ message: 'Task deleted' });
     } catch (error) {
+      console.error('Error deleting task:', error);
       next(error);
     }
   },
-};
+  getTaskById : async (req, res, next) => {
+    try {
+      const { taskId } = req.params;
+      const task = await Task.findById(taskId);
+  
+      if (!task || task.user.toString() !== req.userId) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+  
+      res.json(task);
+    } catch (error) {
+      next(error);
+    }
+}};
 
 module.exports = taskController;
