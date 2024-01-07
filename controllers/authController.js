@@ -40,34 +40,40 @@ const authController ={
             }
         },
 
-
-        signin: async (req,res) => {
+        signin: async (req, res) => {
             try {
                 const { username, password } = req.body;
-
-                //find the user by username
+        
+                // find the user by username
                 const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    // compare psw
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-   //generate and send the jwt token
-    const token = jwt.sign({ userId: user._id }, config.SECRET_KEY, {
-      expiresIn: '1h',
-            });
-            res.json({token});
-        }catch(error) {
-            console.error('Error signing in user', error);
-            res.status(500).json({message:'Internal server error'});
-        }
-
-    }
-
-}
+                console.log('User:', user);
+        
+                if (!user) {
+                    return res.status(401).json({ message: 'Invalid credentials' });
+                }
+        
+                // compare password
+                const passwordMatch = await bcrypt.compare(password, user.password);
+                console.log('Password Match:', passwordMatch);
+        
+                if (!passwordMatch) {
+                    return res.status(401).json({ message: 'Invalid credentials' });
+                }
+        
+                // generate and send the jwt token
+                const token = jwt.sign({ userId: user._id }, config.SECRET_KEY, {
+                    expiresIn: '1h',
+                });
+        
+                // Log the generated token
+                console.log('Generated Token:', token);
+        
+                res.json({ token });
+            } catch (error) {
+                console.error('Error signing in user', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }}
 
 
 module.exports =authController;

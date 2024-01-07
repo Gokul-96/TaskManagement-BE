@@ -5,7 +5,7 @@ const isAuth = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.use(isAuth);
+router.use(isAuth.verifyToken);
 
 router.get('/tasks', taskController.getTasks);
 router.post(
