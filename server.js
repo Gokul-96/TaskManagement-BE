@@ -13,7 +13,7 @@ mongoose
     console.log('Connected to MongoDB');
     
     // Start Express app after successful MongoDB connection
-    app.listen(config.PORT, () => {
+    app.listen(config.PORT,'0.0.0.0', () => {
       console.log(`Server is running on port ${config.PORT}`);
     });
   })
