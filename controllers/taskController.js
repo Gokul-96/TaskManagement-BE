@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const Task = require('../models/taskModel');
 const User = require('../models/authModel');
+const io = require('../socket');
 
 const taskController = {
   getTasks: async (req, res, next) => {
@@ -33,6 +34,9 @@ const taskController = {
       // Create a new task associated with the user
       const task = new Task({ title, user: userId });
       await task.save();
+
+          // Emit a socket event when a task is created
+    io.emit('taskCreated', { taskId: task._id, title: task.title });
 
       res.status(201).json(task);
     } catch (error) {

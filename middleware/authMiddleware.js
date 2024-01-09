@@ -1,23 +1,17 @@
 const jwt = require('jsonwebtoken');
-const config =require('../utils/config');
+const config = require('../utils/config');
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.get('Authorization');
 
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
-  let token;
-
-  if (authHeader.startsWith('Bearer ')) {
-    token = authHeader.slice(7);
-  } else {
-    token = authHeader;
-  }
+  const token = authHeader.slice(7);
 
   try {
-    const decodedToken = jwt.verify(token, config.SECRET_KEY);
+    const decodedToken = jwt.verify(token, config.SECRET_KEY, { algorithms: ['HS256'] });
     req.userId = decodedToken.userId;
     next();
   } catch (error) {
@@ -26,6 +20,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
+
 const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
@@ -34,6 +29,4 @@ const isAdmin = (req, res, next) => {
   }
 };
 
-module.exports = {
-  verifyToken: verifyToken, isAdmin 
-};
+module.exports = { verifyToken, isAdmin };

@@ -1,6 +1,6 @@
 const config = require('./utils/config');
 const mongoose = require('mongoose');
-const app = require('./app');
+const {app,server} = require('./app');
 
 // MongoDB connection
 console.log('Connecting to MongoDB');
@@ -13,7 +13,7 @@ mongoose
     console.log('Connected to MongoDB');
     
     // Start Express app after successful MongoDB connection
-    app.listen(config.PORT,'0.0.0.0', () => {
+    server.listen(config.PORT,'0.0.0.0', () => {
       console.log(`Server is running on port ${config.PORT}`);
     });
   })
